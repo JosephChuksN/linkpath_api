@@ -36,7 +36,7 @@ const login = async (req, res)=>{
       throw UnauthorizeErr('invalid password')
      }
      const token =  user.createJwt()
-     res.status(StatusCodes.OK).json({user:{name:user.name, email:user.email}, token })
+     res.status(StatusCodes.OK).json({user:{name:user.name}, token })
 }
 
 module.exports = {register, login}
