@@ -8,6 +8,7 @@ const {UnauthorizeErr} = require('../errors/errIndex')
 
 const register = async (req, res)=>{
 
+
 try {
 const user = await User.create({...req.body})
 const token = user.createJwt()
