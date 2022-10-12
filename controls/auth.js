@@ -7,6 +7,7 @@ const {UnauthorizeErr} = require('../errors/errIndex')
 
 
 const register = async (req, res)=>{
+      res.setHeader("Access-Control-Allow-Headers", "content-type");
 const {name, email, password} = req.body
 
 //check for all values
