@@ -19,7 +19,7 @@ if(emailAlreadyExist){throw new BadRequestErr('user with email address already e
 const user = await User.create({name, email, password})
 const token = user.createJwt()
       res.status(StatusCodes.CREATED).json({user: {name:user.name, email:user.email}, token })
-     res.send('register')
+    
 }
 
 const login = async (req, res)=>{
