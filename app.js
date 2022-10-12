@@ -14,7 +14,8 @@ const linkRoute = require('./Routes/links')
 app.use(errorHandler)
 app.use(express.json())
 app.use(cors({
-    origin: "http://localhost:3000"
+    origin: "http://localhost:3000",
+    credentials: true
 }))
 
 const port = process.env.PORT || 5000
