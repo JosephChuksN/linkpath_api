@@ -5,8 +5,10 @@ const connectDb = require('./config/database')
 const authenticateUser = require('./middleware/authentication')
 const errorHandler = require('./middleware/errorHandler')
 
+
 const port = process.env.PORT || 5000
 dotenv.config()
+const source = process.env.MONGO_URI
 //Routes
 const authRoute = require('./Routes/auth')
 const linkRoute = require('./Routes/links')
@@ -25,7 +27,7 @@ app.get('/', (req, res)=>{
 const start = async () =>{
     try {
         
-      await  connectDb(process.env.MONGO_URI, console.log("server loaded"))
+      await  connectDb(source, console.log("server loaded"))
       app.listen(port, console.log(`server is running at ${port}...`))
     } catch (error) {
         console.log(error)
