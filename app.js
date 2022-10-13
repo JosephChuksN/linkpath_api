@@ -7,8 +7,6 @@ const errorHandler = require('./middleware/errorHandler')
 const cors = require('cors')
 
 //Routes
-const authRoute = require('./Routes/auth')
-const linkRoute = require('./Routes/links')
 
 //middlewares
 app.use(errorHandler)
@@ -17,6 +15,9 @@ app.use(cors({
     origin: "*",
     credentials: true
 }))
+
+const authRoute = require('./Routes/auth')
+const linkRoute = require('./Routes/links')
 
 const port = process.env.PORT || 5000
 dotenv.config()
