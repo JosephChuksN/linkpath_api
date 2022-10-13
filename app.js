@@ -11,20 +11,11 @@ const cors = require('cors')
 //middlewares
 app.use(errorHandler)
 app.use(express.json())
-// app.use(cors({
-//     origin: '*',
-//     methods:  'PUT, POST, GET, DELETE, ',
-//     credentials: true
-// }))
-app.use(function(res, req, next){
-    res.header("Access-Control-Allow-Origin", '*');
-res.header("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE, PATCH, OPTIONS");
-res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type")
-next()
-})
+app.use(cors({
+    origin: "*",
+    credentials: true
+}))
 
-const authRoute = require('./Routes/auth')
-const linkRoute = require('./Routes/links')
 
 const port = process.env.PORT || 5000
 dotenv.config()
