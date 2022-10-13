@@ -12,7 +12,8 @@ const cors = require('cors')
 app.use(errorHandler)
 app.use(express.json())
 app.use(cors({
-    origin: "*",
+    origin: '*',
+    methods:  'PUT, POST, GET, DELETE, ',
     credentials: true
 }))
 
