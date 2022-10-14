@@ -5,6 +5,7 @@ const connectDb = require('./config/database')
 const authenticateUser = require('./middleware/authentication')
 const errorHandler = require('./middleware/errorHandler')
 const cors = require('cors')
+const sslRedirect = require('heroku-ssl-redirect')
 
 //Routes
 const authRoute = require('./Routes/auth')
@@ -17,6 +18,7 @@ app.use(function (req, res, next) {
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
     next()
 })
+app.use(sslRedirect())
 app.use(errorHandler)
 app.use(express.json())
 
