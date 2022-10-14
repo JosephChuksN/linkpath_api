@@ -5,7 +5,7 @@ const connectDb = require('./config/database')
 const authenticateUser = require('./middleware/authentication')
 const errorHandler = require('./middleware/errorHandler')
 const cors = require('cors')
-const sslRedirect = require('heroku-ssl-redirect')
+const sslRedirect = require('heroku-ssl-redirect').default
 
 //Routes
 const authRoute = require('./Routes/auth')
