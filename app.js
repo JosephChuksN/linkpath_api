@@ -18,7 +18,7 @@ const linkRoute = require('./Routes/links')
 //     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization")
 //     next()
 // })
-
+app.use(cors())
 app.use(sslRedirect())
 app.use(errorHandler)
 app.use(express.json())
@@ -29,7 +29,7 @@ const source = process.env.MONGO_URI
 
 
 
-app.use('/api/v1/auth', cors(), authRoute)
+app.use('/api/v1/auth',  authRoute)
 app.use('/api/v1/links',  authenticateUser, linkRoute)
 app.get('/', (req, res)=>{
     res.send("home")
