@@ -3,8 +3,8 @@ const {BadRequestErr} = require('../errors/errIndex')
 const {StatusCodes} = require('http-status-codes')
 
 const createLink = async (req, res)=>{
-    const {siteLink, siteName} = req.body
-
+    
+ const {siteLink, siteName} = req.body
    req.body.createdBy = req.user.userId
    const link = await Links.create(req.body)
    res.status(StatusCodes.CREATED).json({link})
