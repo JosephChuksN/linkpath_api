@@ -19,7 +19,10 @@ const linkRoute = require('./Routes/links')
 //     next()
 // })
 app.use(cors({
-    origin: 'https://linkpath-josephn.vercel.app'
+    origin: 'https://linkpath-josephn.vercel.app',
+    methods: 'POST, GET, PATCH, DELETE',
+    allowedHeaders: 'Origin, X-Requested-With, Content-Type, Accept, Authorization'
+    
 }))
 app.use(sslRedirect())
 app.use(errorHandler)
