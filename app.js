@@ -13,12 +13,14 @@ const linkRoute = require('./Routes/links')
 
 //middlewares
 
-app.use(function (req, res, next) {
-    res.header("Access-Control-Allow-Origin", "*")
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization")
-    next()
-})
-// app.use()
+// app.use(function (req, res, next) {
+//     res.header("Access-Control-Allow-Origin", "*")
+//     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization")
+//     next()
+// })
+app.use(cors({
+    origin: ['https://linkpath-josephn.vercel.app', 'https://linkpath-josephn.vercel.app/', 'http://localhost:3000']
+}))
 app.use(sslRedirect())
 app.use(errorHandler)
 app.use(express.json())
