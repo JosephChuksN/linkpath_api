@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+const validator = require('validator')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 
@@ -7,14 +8,18 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: [true, "please provide a name"],
         minlength: 3,
-        maxlength: 50,
+        maxlength: 20,
+        unique: true,
         trim: true
 
     },
     email:{
         type: String,
         required: [true, 'please provide an email'],
-        match:[/^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/, "please provide a valid email"],
+        validate: {
+            validator: validator.isEmail,
+            message: 'Please provide a valid email',
+          },
         unique: true
     },
     password:{

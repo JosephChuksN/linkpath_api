@@ -5,39 +5,34 @@ const connectDb = require('./config/database')
 const authenticateUser = require('./middleware/authentication')
 const errorHandler = require('./middleware/errorHandler')
 const cors = require('cors')
-// const sslRedirect = require('heroku-ssl-redirect').default
+const sslRedirect = require('heroku-ssl-redirect').default
 
 //Routes
 const authRoute = require('./Routes/auth')
 const linkRoute = require('./Routes/links')
 
-//middlewares
 
-// app.use(function (req, res, next) {
-//     res.header("Access-Control-Allow-Origin", "*")
-//     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization")
-//     next()
-// })
+//middlewares
 app.use(cors())
-// app.use(sslRedirect())
-app.use(errorHandler)
+app.use(sslRedirect())
 app.use(express.json())
+app.use(errorHandler)
 
 const port = process.env.PORT || 5000
 dotenv.config()
 const source = process.env.MONGO_URI
 
 
-
+//app routes
 app.use('/api/v1/auth',  authRoute)
 app.use('/api/v1/links',  authenticateUser, linkRoute)
 app.get('/', (req, res)=>{
-    res.send("home")
+    res.json({})
  })
 const start = async () =>{
     try {
         
-      connectDb(source, console.log("server loaded"))
+     connectDb(source, console.log("server loaded"))
       app.listen(port, console.log(`server is running at ${port}...`))
     } catch (error) {
         console.log(error)

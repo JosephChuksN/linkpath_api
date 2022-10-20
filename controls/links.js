@@ -1,5 +1,4 @@
 const Links = require('../model/links')
-const {BadRequestErr} = require('../errors/errIndex')
 const {StatusCodes} = require('http-status-codes')
 
 const createLink = async (req, res)=>{
@@ -22,7 +21,7 @@ const updateLink = async (req, res) =>{
    } = req
 
    if(siteLink === "" || siteName ===""){
-    throw new BadRequestErr('siteLink or sitename fields cannot be blank')
+   res.status(StatusCodes.BAD_REQUEST).json({msg: 'link or sitename fields cannot be blank'})
    }
    const link = await Links.findByIdAndUpdate({_id:linkId, createdBy:userId}, req.body, {new:true, runValidators:true} )
    res.status(StatusCodes.OK).json({link})
