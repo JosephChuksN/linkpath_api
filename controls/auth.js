@@ -17,12 +17,12 @@ const {name, email, password} = req.body
 
 //check password length
       if(password.length !== 6){
-      res.status(StatusCodes.BAD_REQUEST).json({msg: "Password length must be greater than 8 characters."})
+      res.status(StatusCodes.BAD_REQUEST).json({msg: "Password length must be greater than 6 characters."})
       }
 //check if username exist
-const usernameAlreadyExist = User.findOne({name})
+const usernameAlreadyExist = await User.findOne({name})
       if(usernameAlreadyExist){
-      res.status(StatusCodes.BAD_REQUEST).json({msg: "User username already exist"})
+      res.status(StatusCodes.BAD_REQUEST).json({msg: "User with username already exist"})
       }
 
 //check if email already exits in database
