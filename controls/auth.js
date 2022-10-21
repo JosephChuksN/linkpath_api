@@ -16,7 +16,7 @@ const {name, email, password} = req.body
       }
 
 //check password length
-      if(password.length !== 6){
+      if(password.length < 6){
       res.status(StatusCodes.BAD_REQUEST).json({msg: "Password length must be greater than 6 characters."})
       }
 //check if username exist
@@ -33,7 +33,7 @@ const emailAlreadyExist = await User.findOne({email})
 
 const user = await User.create({name, email, password})
 const token = user.createJwt()
-      res.status(StatusCodes.CREATED).json({user: {name:user.name, email:user.email}, token })
+      res.status(StatusCodes.CREATED).json({user: {name:user.name, email:user.email}, token, description: user.description })
     
 }
 
@@ -58,7 +58,25 @@ const login = async (req, res)=>{
      }
 
      const token =  user.createJwt()
-     res.status(StatusCodes.OK).json({user:{name:user.name, email:user.email}, token })
+     res.status(StatusCodes.OK).json({user:{name:user.name, email:user.email}, token, description: user.description })
 }
 
-module.exports = {register, login}
+const updateUser = async (req, res)=>{
+      const {name, email, description} = req.body
+      if(!name || !email || !description){
+            res.status(StatusCodes.BAD_REQUEST).json({msg: "Please provide values username and email"})
+      }
+
+      const user = await User.findOne({_id: req.user.userId})
+      user.name = name
+      user.email = email
+      user.description = description
+
+      await user.save()
+      const token = user.createJwt()
+
+      res.status(StatusCodes.OK).json({user, token, description: user.description})
+
+}
+
+module.exports = {register, login, updateUser}
