@@ -48,7 +48,7 @@ const login = async (req, res)=>{
      //checks if user exits in db
      const user = await User.findOne({email}).select('+password')
      if(!user){
-      res.status(StatusCodes.BAD_REQUEST).json({msg: "Invalid email or password"})
+      res.status(StatusCodes.BAD_REQUEST).json({msg: "Invalid user credentials"})
      }
 
      //check if password matched
