@@ -58,7 +58,8 @@ const login = async (req, res)=>{
      }
 
      const token =  user.createJwt()
-     res.status(StatusCodes.OK).json({user:{name:user.name, email:user.email,  bio:user.bio}, token, bio: user.bio })
+     user.password = undefined
+     res.status(StatusCodes.OK).json({user, token, bio: user.bio })
 }
 
 const updateUser = async (req, res)=>{
