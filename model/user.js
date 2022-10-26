@@ -28,7 +28,7 @@ const userSchema = new mongoose.Schema({
         minlength: 6
         
     },
-    description:{
+    bio:{
         type: String,
         default: ' '
     }

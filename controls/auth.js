@@ -33,7 +33,7 @@ const emailAlreadyExist = await User.findOne({email})
 
 const user = await User.create({name, email, password})
 const token = user.createJwt()
-      res.status(StatusCodes.CREATED).json({user: {name:user.name, email:user.email}, token, description: user.description })
+      res.status(StatusCodes.CREATED).json({user: {name:user.name, email:user.email}, token, bio:user.bio })
     
 }
 
@@ -58,24 +58,24 @@ const login = async (req, res)=>{
      }
 
      const token =  user.createJwt()
-     res.status(StatusCodes.OK).json({user:{name:user.name, email:user.email}, token, description: user.description })
+     res.status(StatusCodes.OK).json({user:{name:user.name, email:user.email}, token, bio: user.bio })
 }
 
 const updateUser = async (req, res)=>{
-      const {name, email, description} = req.body
-      if(!name || !email || !description){
+      const {name, email, bio} = req.body
+      if(!name || !email){
             res.status(StatusCodes.BAD_REQUEST).json({msg: "Please provide values username and email"})
       }
 
       const user = await User.findOne({_id: req.user.userId})
       user.name = name
       user.email = email
-      user.description = description
+      user.bio = bio
 
       await user.save()
       const token = user.createJwt()
 
-      res.status(StatusCodes.OK).json({user, token, description: user.description})
+      res.status(StatusCodes.OK).json({user, token, bio: user.bio})
 
 }
 
