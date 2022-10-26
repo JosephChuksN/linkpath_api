@@ -33,7 +33,7 @@ const emailAlreadyExist = await User.findOne({email})
 
 const user = await User.create({name, email, password})
 const token = user.createJwt()
-      res.status(StatusCodes.CREATED).json({user: {name:user.name, email:user.email}, token, bio:user.bio })
+      res.status(StatusCodes.CREATED).json({user: {name:user.name, email:user.email, bio:user.bio}, token, bio:user.bio })
     
 }
 
@@ -58,7 +58,7 @@ const login = async (req, res)=>{
      }
 
      const token =  user.createJwt()
-     res.status(StatusCodes.OK).json({user:{name:user.name, email:user.email}, token, bio: user.bio })
+     res.status(StatusCodes.OK).json({user:{name:user.name, email:user.email,  bio:user.bio}, token, bio: user.bio })
 }
 
 const updateUser = async (req, res)=>{
