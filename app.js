@@ -10,6 +10,7 @@ const sslRedirect = require('heroku-ssl-redirect').default
 //Routes
 const authRoute = require('./Routes/auth')
 const linkRoute = require('./Routes/links')
+const visitorsRoute = require('./Routes/visitorsRoute')
 
 
 //middlewares
@@ -26,6 +27,7 @@ const source = process.env.MONGO_URI
 //app routes
 app.use('/api/v1/auth',  authRoute)
 app.use('/api/v1/links',  authenticateUser, linkRoute)
+app.use('/api/v1/link', visitorsRoute)
 app.get('/', (req, res)=>{
     res.json({})
  })
