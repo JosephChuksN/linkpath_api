@@ -68,7 +68,7 @@ const updateUser = async (req, res)=>{
             res.status(StatusCodes.BAD_REQUEST).json({msg: "Please provide values username and email"})
       }
 
-      const user = await User.findOne({_id: req.user.userId})
+      const user = await User.findOne({_id: req.user.userId}).select("-password")
       user.name = name
       user.email = email
       user.bio = bio
