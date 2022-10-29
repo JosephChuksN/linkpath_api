@@ -7,7 +7,7 @@ const getLinks =  async(req, res)=>{
     const user =  await User.findOne({name:userName}).select('-password')
    
     if(!user){
-        res.status(StatusCodes.NOT_FOUND).json({msg: "Oops invalid link"})
+        res.status(StatusCodes.NOT_FOUND).json({msg: "User not found"})
     }
     const id = user._id.toString()
     const link = await Links.find({createdBy:id}).sort("createdAt")
