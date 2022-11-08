@@ -32,6 +32,11 @@ const userSchema = new mongoose.Schema({
     bio:{
         type: String,
         default: ''
+    }, 
+    profileImg:{
+        type:String,
+        default:'',
+        required: false
     }
 })
 

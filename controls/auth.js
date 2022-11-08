@@ -1,8 +1,16 @@
 const User = require("../model/user")
 const {StatusCodes}  = require('http-status-codes')
+const fs = require('fs')
+const path = require('path')
+const cloudinary = require('cloudinary')
+const dotenv = require('dotenv').config()
 
 
-
+cloudinary.config({ 
+      cloud_name: process.env.CLOUD_NAME, 
+      api_key:  process.env.API_KEY,
+      api_secret: process.env.API_SECRET_KEY
+    });
 
 
 
@@ -33,7 +41,7 @@ const emailAlreadyExist = await User.findOne({email})
 
 const user = await User.create({name, email, password})
 const token = user.createJwt()
-      res.status(StatusCodes.CREATED).json({user: {name:user.name, email:user.email, bio:user.bio}, token, bio:user.bio })
+      res.status(StatusCodes.CREATED).json({user: {name:user.name, email:user.email, bio:user.bio, profileImg:user.profileImg}, token, bio:user.bio })
     
 }
 
@@ -63,20 +71,47 @@ const login = async (req, res)=>{
 }
 
 const updateUser = async (req, res)=>{
+
       const {name, email, bio} = req.body
       if(!name || !email){
             res.status(StatusCodes.BAD_REQUEST).json({msg: "Please provide values username and email"})
       }
+      const filePath = req.file ? req.file.path : null
+      
+     const  user = await User.findOne({_id: req.user.userId})
+     console.log(user)
+      if(!filePath){
+            try {
+                  user.name = name
+                  user.email = email
+                  user.bio = bio
+            
+                  await user.save()
+                  const token = user.createJwt()
+            
+                  res.status(StatusCodes.OK).json({user, token, bio: user.bio})
+                 } catch (error) {
+                  console.log(error)
+                 }
+      }
 
-      const user = await User.findOne({_id: req.user.userId})
-      user.name = name
-      user.email = email
-      user.bio = bio
-
-      await user.save()
-      const token = user.createJwt()
-
-      res.status(StatusCodes.OK).json({user, token, bio: user.bio})
+      cloudinary.v2.uploader.upload(filePath).then(async (result)=>{   
+            try {
+                  user.name = name
+                  user.email = email
+                  user.bio = bio
+                  user.profileImg = result.secure_url
+            
+                  await user.save()
+                  const token = user.createJwt()
+            
+                  res.status(StatusCodes.OK).json({user, token, bio: user.bio})
+                 } catch (error) {
+                  console.log(error)
+                 }
+            })
+      
+    
 
 }
 
