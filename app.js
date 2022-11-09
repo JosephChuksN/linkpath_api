@@ -18,7 +18,7 @@ app.use(cors())
 app.use(sslRedirect())
 app.use(express.json())
 app.use(errorHandler)
-app.use(express.static('./profileImages'))
+app.use(express.static('./'))
 
 
 
