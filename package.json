@@ -9,7 +9,7 @@
     "dev": "nodemon app.js"
   },
   "keywords": [],
-  "author": "",
+  "author": "Nwosu Joseph Chuks",
   "license": "ISC",
   "devDependencies": {
     "nodemon": "^2.0.20"

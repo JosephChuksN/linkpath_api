@@ -78,10 +78,10 @@ const updateUser = async (req, res)=>{
       }
       const filePath = req.file ? req.file.path : null
       const  user = await User.findOne({_id: req.user.userId})
-      const emailAlreadyExist = await User.find({email:email})
-      if(emailAlreadyExist){
-        res.status(StatusCodes.BAD_REQUEST).json({msg:"this email is already in use"})
-      }
+    //   const emailAlreadyExist = await User.find({email:email})
+    //   if(emailAlreadyExist){
+    //     res.status(StatusCodes.BAD_REQUEST).json({msg:"this email is already in use"})
+    //   }
       console.log(user)
       if(!filePath){
       try {
