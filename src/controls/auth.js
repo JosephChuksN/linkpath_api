@@ -40,7 +40,7 @@ const register = async (req, res)=>{
       }
 
       const user = await User.create({name, email, password})
-      const token = user.createJwt()
+      const token = await user.createJwt()
       res.status(StatusCodes.CREATED).json({user: {name:user.name, email:user.email, bio:user.bio, profileImg:user.profileImg}, token, bio:user.bio })
     
 }
@@ -65,7 +65,7 @@ const login = async (req, res)=>{
       res.status(StatusCodes.BAD_REQUEST).json({msg: "Invalid email or password"})
      }
 
-     const token =  user.createJwt()
+     const token = await user.createJwt()
      user.password = undefined
      res.status(StatusCodes.OK).json({user, token, bio: user.bio })
 }
@@ -90,7 +90,7 @@ const updateUser = async (req, res)=>{
            user.bio = bio
             
            await user.save()
-           const token = user.createJwt()
+           const token = await user.createJwt()
             
            res.status(StatusCodes.OK).json({user, token, bio: user.bio})
           } catch (error) {
@@ -106,7 +106,7 @@ const updateUser = async (req, res)=>{
            user.profileImg = result.secure_url
             
            await user.save()
-           const token = user.createJwt()
+           const token = await user.createJwt()
             
            res.status(StatusCodes.OK).json({user, token, bio: user.bio})
          
