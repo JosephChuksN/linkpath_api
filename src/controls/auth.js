@@ -101,7 +101,7 @@ const updateUser = async (req, res)=>{
           res.status(StatusCodes.OK).json({user, token, bio: user.bio})
         }
      } catch (error) {
-        res.status(StatusCodes.EXPECTATION_FAILED).json({msg: "There was a problem, try again"})
+        res.status(StatusCodes.EXPECTATION_FAILED).json({msg:error})
      }
 
 
