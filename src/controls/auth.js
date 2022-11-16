@@ -77,30 +77,32 @@ const updateUser = async (req, res)=>{
     //   if(emailAlreadyExist){
     //         res.status(StatusCodes.BAD_REQUEST).json({msg: "Email already in use by you or another user"})
     //   }
-            const  user = await User.findOne({_id: req.user.userId})
+     try {
+        const  user = await User.findOne({_id: req.user.userId})
 
-
-      if(!profileImg){
-        
-        user.name = name
-        user.email = email
-        user.bio = bio
-        
-        await user.save()
-        const token = await user.createJwt()
+        if(!profileImg){       
+          user.name = name
+          user.email = email
+          user.bio = bio
+          
+          await user.save()
+          const token = await user.createJwt()
+           
+          res.status(StatusCodes.OK).json({user, token, bio: user.bio})
+        }else{ 
+          user.name = name
+          user.email = email
+          user.bio = bio
+          user.profileImg = profileImg
          
-        res.status(StatusCodes.OK).json({user, token, bio: user.bio})
-      }else{ 
-        user.name = name
-        user.email = email
-        user.bio = bio
-        user.profileImg = profileImg
-       
-        await user.save()
-        const token = await user.createJwt()
-       
-        res.status(StatusCodes.OK).json({user, token, bio: user.bio})
-      }
+          await user.save()
+          const token = await user.createJwt()
+         
+          res.status(StatusCodes.OK).json({user, token, bio: user.bio})
+        }
+     } catch (error) {
+        res.status(StatusCodes.EXPECTATION_FAILED).json({msg: "There was a problem, try again"})
+     }
 
 
 }
