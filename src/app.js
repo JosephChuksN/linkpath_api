@@ -22,9 +22,6 @@ app.use(express.static('./'))
 
 
 
-
-
-
 //app routes
 app.use('/api/v1/auth',  authRoute)
 app.use('/api/v1/links',  authenticateUser, linkRoute)

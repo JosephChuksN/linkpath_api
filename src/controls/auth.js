@@ -1,16 +1,6 @@
 const User = require("../model/user")
 const {StatusCodes}  = require('http-status-codes')
-const fs = require('fs')
-const path = require('path')
-const cloudinary = require('cloudinary')
-const dotenv = require('dotenv').config()
 
-
-cloudinary.config({ 
-      cloud_name: process.env.CLOUD_NAME, 
-      api_key:  process.env.API_KEY,
-      api_secret: process.env.API_SECRET_KEY
-    });
 
 
 
@@ -72,49 +62,46 @@ const login = async (req, res)=>{
 
 const updateUser = async (req, res)=>{
 
-      const {name, email, bio} = req.body
+      const {name, email, bio, profileImg} = req.body
       if(!name || !email){
             res.status(StatusCodes.BAD_REQUEST).json({msg: "Please provide values username and email"})
       }
-      const filePath = req.file ? req.file.path : null
-      const  user = await User.findOne({_id: req.user.userId})
-    //   const emailAlreadyExist = await User.find({email:email})
-    //   if(emailAlreadyExist){
-    //     res.status(StatusCodes.BAD_REQUEST).json({msg:"this email is already in use"})
+
+    //   const nameAlreadyExist = await User.find({name:name})
+
+    //   if(nameAlreadyExist){
+    //     res.status(StatusCodes.BAD_REQUEST).json({msg: "username already in use by you or another user"})
     //   }
-      console.log(user)
-      if(!filePath){
-      try {
-           user.name = name
-           user.email = email
-           user.bio = bio
-            
-           await user.save()
-           const token = await user.createJwt()
-            
-           res.status(StatusCodes.OK).json({user, token, bio: user.bio})
-          } catch (error) {
-                  console.log(error)
-          }
+
+    //   const  emailAlreadyExist = await User.find({email:email}) 
+    //   if(emailAlreadyExist){
+    //         res.status(StatusCodes.BAD_REQUEST).json({msg: "Email already in use by you or another user"})
+    //   }
+            const  user = await User.findOne({_id: req.user.userId})
+
+
+      if(!profileImg){
+        
+        user.name = name
+        user.email = email
+        user.bio = bio
+        
+        await user.save()
+        const token = await user.createJwt()
+         
+        res.status(StatusCodes.OK).json({user, token, bio: user.bio})
+      }else{ 
+        user.name = name
+        user.email = email
+        user.bio = bio
+        user.profileImg = profileImg
+       
+        await user.save()
+        const token = await user.createJwt()
+       
+        res.status(StatusCodes.OK).json({user, token, bio: user.bio})
       }
 
-      cloudinary.v2.uploader.upload(filePath).then(async (result)=>{   
-      
-           user.name = name
-           user.email = email
-           user.bio = bio
-           user.profileImg = result.secure_url
-            
-           await user.save()
-           const token = await user.createJwt()
-            
-           res.status(StatusCodes.OK).json({user, token, bio: user.bio})
-         
-       }).catch(err=>{
-            console.log(err)
-       })
-      
-    
 
 }
 
