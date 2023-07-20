@@ -41,7 +41,9 @@ const register = async (req, res)=>{
          token: token
       }).save()
       const url = `${process.env.BASE_URL}api/v1/auth/verify/${user._id}/${_token.token}`
-      await emailConfirmation(email, "Verify Email", url)
+      const mail = `<p>Verify your email address to complete signup and login to your account. <br>
+      This link expires in <b>1</b> hour <br> Click <a href=${url}>here</a> to proceed</p>`
+      await emailConfirmation(email, "Verify Email", mail)
       res.status(StatusCodes.CREATED).json({user: {name:user.name, email:user.email, bio:user.bio, profileImg:user.profileImg}, token, bio:user.bio })
     
 }
