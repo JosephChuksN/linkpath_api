@@ -1,6 +1,6 @@
 const express = require('express')
 const app = express()
-const dotenv = require('dotenv').config()
+require('dotenv').config()
 const connectDb = require('./config/database')
 const authenticateUser = require('./middleware/authentication')
 const errorHandler = require('./middleware/errorHandler')

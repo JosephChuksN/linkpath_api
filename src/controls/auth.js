@@ -1,5 +1,9 @@
 const User = require("../model/user")
 const {StatusCodes}  = require('http-status-codes')
+const emailConfirmation = require("../utils/sendEmail")
+const Token = require("../model/token")
+const  crypto  = require("crypto")
+const token = require("../model/token")
 
 
 
@@ -14,7 +18,7 @@ const register = async (req, res)=>{
       }
 
   //check password length
-      if(password.length < 6){
+      if(password?.length < 6){
       res.status(StatusCodes.BAD_REQUEST).json({msg: "Password length must be greater than 6 characters."})
       }
   //check if username exist
@@ -31,8 +35,44 @@ const register = async (req, res)=>{
 
       const user = await User.create({name, email, password})
       const token = await user.createJwt()
+
+      const _token = await new Token({
+         userId: user._id,
+         token: token
+      }).save()
+      const url = `${process.env.BASE_URL}api/v1/auth/verify/${user._id}/${_token.token}`
+      await emailConfirmation(email, "Verify Email", url)
       res.status(StatusCodes.CREATED).json({user: {name:user.name, email:user.email, bio:user.bio, profileImg:user.profileImg}, token, bio:user.bio })
     
+}
+
+const verifyEmail = async (req, res) =>{
+    
+   const { id, token } = req.params
+
+   
+
+   try {
+      const user = await User.findOne({_id:id})
+
+      if(!user) return res.status(StatusCodes.NOT_FOUND).json({msg: "invalid link"})
+      const _token = await Token.findOne({
+         userId: user._id,
+         token: token
+      })
+
+      console.log(_token)
+      if(!_token) return res.status(StatusCodes.NOT_FOUND).json({msg: "invalid link"})
+
+      await User.updateOne({_id:user._id},{verified: true})
+      await _token.remove()
+
+      res.status(StatusCodes.OK).json({msg: "email confirmed"})
+
+   } catch (error) {
+      res.status(StatusCodes.EXPECTATION_FAILED).json({msg: "invalid link"})
+   }
+   
 }
 
 const login = async (req, res)=>{
@@ -107,4 +147,4 @@ const updateUser = async (req, res)=>{
 
 }
 
-module.exports = {register, login, updateUser}
+module.exports = {register, login, updateUser, verifyEmail}
