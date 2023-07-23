@@ -34,42 +34,39 @@ const register = async (req, res)=>{
       }
 
       const user = await User.create({name, email, password})
-      const token = await user.createJwt()
 
       const _token = await new Token({
          userId: user._id,
-         token: token
+         token: crypto.randomBytes(32).toString("hex")
       }).save()
-      const url = `${process.env.BASE_URL}api/v1/auth/verify/${user._id}/${_token.token}`
+      const url = `${process.env.BASE_URL}/verify/${user._id}/user/${_token.token}`
       const mail = `<p>Verify your email address to complete signup and login to your account. <br>
       This link expires in <b>1</b> hour <br> Click <a href=${url}>here</a> to proceed</p>`
       await emailConfirmation(email, "Verify Email", mail)
-      res.status(StatusCodes.CREATED).json({user: {name:user.name, email:user.email, bio:user.bio, profileImg:user.profileImg}, token, bio:user.bio })
+      res.status(StatusCodes.CREATED).json(
+         { user: {name:user.name, email:user.email, bio:user.bio, profileImg:user.profileImg}, bio:user.bio, msg:` A verification link was sent to ${email}` })
     
 }
 
 const verifyEmail = async (req, res) =>{
-    
-   const { id, token } = req.params
 
    
 
    try {
-      const user = await User.findOne({_id:id})
+      const user = await User.findOne({_id:req.params.id})
 
       if(!user) return res.status(StatusCodes.NOT_FOUND).json({msg: "invalid link"})
       const _token = await Token.findOne({
          userId: user._id,
-         token: token
+         token: req.params.token
       })
 
-      console.log(_token)
       if(!_token) return res.status(StatusCodes.NOT_FOUND).json({msg: "invalid link"})
 
       await User.updateOne({_id:user._id},{verified: true})
       await _token.remove()
-
-      res.status(StatusCodes.OK).json({msg: "email confirmed"})
+      const token = await user.createJwt()
+      res.status(StatusCodes.OK).json({ user: {name:user.name, email:user.email, bio:user.bio, profileImg:user.profileImg}, token, bio:user.bio, msg: "email confirmed"})
 
    } catch (error) {
       res.status(StatusCodes.EXPECTATION_FAILED).json({msg: "invalid link"})
@@ -94,7 +91,18 @@ const login = async (req, res)=>{
   //check if password matched
      const matchedPass = await user.comparePassword(password)
      if(!matchedPass){
-      res.status(StatusCodes.BAD_REQUEST).json({msg: "Invalid email or password"})
+     res.status(StatusCodes.BAD_REQUEST).json({msg: "Invalid email or password"})
+     }
+     if(!user.verified){
+      const _token = await new Token({
+         userId: user._id,
+         token: crypto.randomBytes(32).toString("hex")
+      }).save()
+      const url = `${process.env.BASE_URL}/verify/${user._id}/user/${_token.token}`
+      const mail = `<p>Verify your email address to complete signup and login to your account. <br>
+      This link expires in <b>1</b> hour <br> Click <a href=${url}>here</a> to proceed</p>`
+      await emailConfirmation(email, "Verify Email", mail)
+      return res.status(StatusCodes.UNAUTHORIZED).json({ msg:` A verification link was sent to ${email}` })
      }
 
      const token = await user.createJwt()
