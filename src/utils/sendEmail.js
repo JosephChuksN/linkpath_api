@@ -14,7 +14,7 @@ const emailConfirmation = async (email, subject, text) =>{
         })
 
         await transporter.sendMail({
-            from: process.env.USER_EMAIL,
+            from:  process.env.USER_EMAIL,
             to: email,
             subject: subject,
             html:text
