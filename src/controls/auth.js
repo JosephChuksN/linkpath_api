@@ -2,8 +2,9 @@ const User = require("../model/user")
 const {StatusCodes}  = require('http-status-codes')
 const emailConfirmation = require("../utils/sendEmail")
 const Token = require("../model/token")
+const ResetToken = require("../model/reset")
 const  crypto  = require("crypto")
-const token = require("../model/token")
+
 
 
 
@@ -166,4 +167,51 @@ const updateUser = async (req, res)=>{
 
 }
 
-module.exports = {register, login, updateUser, verifyEmail}
+const sendPaswordResetLink = async (req, res) => {
+   const { email } = req.body
+  try {
+   if(!email) return res.status(StatusCodes.BAD_REQUEST).json({msg: "Email cannot be blank"})
+
+   const user = await User.findOne({email})
+   if(!user) return res.status(StatusCodes.BAD_REQUEST).json({msg: "There is no user with this email"})
+   const resetToken = await new ResetToken({
+      userId: user._id,
+      token: crypto.randomBytes(32).toString("hex")
+   }).save()
+   const url = `${process.env.BASE_URL}reset/password/${user._id}/user/${resetToken.token}`
+   const mail = `<p>Password reset link. <br>
+   This link expires in <b>1 hour </b> <br> Click <a href=${url}>here</a> to reset your linkpath password</p>`
+   await emailConfirmation(email, "Reset Password", mail)
+
+   res.status(200).json({msg: `A password reset link was sent to ${email}`})
+   
+  } catch (error) {
+      res.status(StatusCodes.BAD_REQUEST).json({msg: "There was an error"})
+  }
+
+}
+
+const resetPassword = async (req, res) => {
+      const { id, token } = req.params
+      const { password } = req.body
+  try {
+   if(password?.length < 6){
+      res.status(StatusCodes.BAD_REQUEST).json({msg: "Password length must be greater than 6 characters."})
+      }
+     const user = await User.findOne({_id:id})
+     if(!user) return res.status(StatusCodes.NOT_FOUND).json({msg: "invalid link request a new one"})
+     const resetToken = await ResetToken.findOne({
+      userId: user._id,
+      token:token
+     })
+     if(!resetToken) return res.status(StatusCodes.BAD_REQUEST).json({msg: "invalid link, timed out request a new link"})
+     await User.updateOne({_id:user._id}, {password: password})
+     await resetToken.remove()
+     res.status(StatusCodes.OK).json({msg: "password reset complete"})
+  } catch (error) {
+   res.status(StatusCodes.BAD_REQUEST).json({msg: "There was an error"})
+  }
+
+}
+
+module.exports = {register, login, updateUser, verifyEmail, sendPaswordResetLink, resetPassword}
