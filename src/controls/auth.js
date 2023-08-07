@@ -4,6 +4,7 @@ const emailConfirmation = require("../utils/sendEmail")
 const Token = require("../model/token")
 const ResetToken = require("../model/reset")
 const  crypto  = require("crypto")
+const bcrypt = require("bcrypt")
 
 
 
@@ -33,8 +34,10 @@ try {
    if(emailAlreadyExist){
    res.status(StatusCodes.BAD_REQUEST).json({msg: "User with email already exist"})
    }
+   const saltRounds = await bcrypt.genSalt(10)
+   const hashedPassword = await bcrypt.hash(password, saltRounds)
 
-   const user = await User.create({name, email, password})
+   const user = await User.create({name, email, password:hashedPassword})
 
    const _token = await new Token({
       userId: user._id,
@@ -95,9 +98,9 @@ const login = async (req, res)=>{
   }
 
 //check if password matched
-  const matchedPass = await user.comparePassword(password)
+  const matchedPass = user.comparePassword(password)
   if(!matchedPass){
-  res.status(StatusCodes.BAD_REQUEST).json({msg: "Invalid email or password"})
+       res.status(StatusCodes.BAD_REQUEST).json({msg: "Invalid email or password"})
   }
   if(!user.verified){
    const _token = await new Token({
@@ -174,13 +177,17 @@ const sendPaswordResetLink = async (req, res) => {
 
    const user = await User.findOne({email})
    if(!user) return res.status(StatusCodes.BAD_REQUEST).json({msg: "There is no user with this email"})
+   const availableToken = await ResetToken.findOne({userId: user._id})
+   if(availableToken) return res.status(StatusCodes.BAD_REQUEST).json({msg: "Please check your email a reset was already sent."})
    const resetToken = await new ResetToken({
       userId: user._id,
       token: crypto.randomBytes(32).toString("hex")
    }).save()
-   const url = `${process.env.BASE_URL}reset/password/${user._id}/user/${resetToken.token}`
+   const url = `${process.env.BASE_URL}resetpassword/${user._id}/${resetToken.token}`
    const mail = `<p>Password reset link. <br>
-   This link expires in <b>1 hour </b> <br> Click <a href=${url}>here</a> to reset your linkpath password</p>`
+   This link expires in <b>10 minutes </b> <br> Click <a href=${url}>here</a> to reset your linkpath password <br>
+   if you didn't forget your password please ignore this email
+   </p>`
    await emailConfirmation(email, "Reset Password", mail)
 
    res.status(200).json({msg: `A password reset link was sent to ${email}`})
@@ -192,22 +199,31 @@ const sendPaswordResetLink = async (req, res) => {
 }
 
 const resetPassword = async (req, res) => {
-      const { id, token } = req.params
       const { password } = req.body
   try {
-   if(password?.length < 6){
-      res.status(StatusCodes.BAD_REQUEST).json({msg: "Password length must be greater than 6 characters."})
-      }
-     const user = await User.findOne({_id:id})
-     if(!user) return res.status(StatusCodes.NOT_FOUND).json({msg: "invalid link request a new one"})
+     const user = await User.findOne({_id:req.params.id}).select('+password')
+     if(!user) {
+       res.status(StatusCodes.NOT_FOUND).json({msg: "invalid link request a new one"})
+     }
      const resetToken = await ResetToken.findOne({
       userId: user._id,
-      token:token
+      token:req.params.token
      })
-     if(!resetToken) return res.status(StatusCodes.BAD_REQUEST).json({msg: "invalid link, timed out request a new link"})
-     await User.updateOne({_id:user._id}, {password: password})
+     if(!resetToken) {
+      res.status(StatusCodes.BAD_REQUEST).json({msg: "invalid link, timed out request a new link"})
+     }
+     if(password?.length < 6){
+      res.status(StatusCodes.BAD_REQUEST).json({msg: "Password length must be greater than 6 characters."})
+      }
+     const matchedPrevPassword = await bcrypt.compare(password, user.password).then((status)=>{return status})
+     if(matchedPrevPassword){
+      return res.status(StatusCodes.BAD_REQUEST).json({msg: "Must be a new password"})
+     }
+     const saltRounds = await bcrypt.genSalt(10)
+     const hashedPassword = await bcrypt.hash(password, saltRounds)
+     await User.updateOne({_id:user._id}, {password: hashedPassword})
      await resetToken.remove()
-     res.status(StatusCodes.OK).json({msg: "password reset complete"})
+     return  res.status(StatusCodes.OK).json({msg: "password reset complete"})
   } catch (error) {
    res.status(StatusCodes.BAD_REQUEST).json({msg: "There was an error"})
   }
