@@ -9,6 +9,11 @@ const LinksSchema = new mongoose.Schema({
         type: String,
         required:[true, 'provide name']
     },
+    linkImg:{
+        type:String,
+        default:'',
+        required: false
+    },
     createdBy:{
         type: mongoose.Types.ObjectId
     },

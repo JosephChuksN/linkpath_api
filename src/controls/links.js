@@ -26,6 +26,19 @@ const updateLink = async (req, res) =>{
    const link = await Links.findByIdAndUpdate({_id:linkId, createdBy:userId}, req.body, {new:true, runValidators:true} )
    res.status(StatusCodes.OK).json({link})
 }
+
+const updateLinkThumbmail = async (req, res) => {
+    const {body: {linkImg}, params: {id: linkId}, user: {userId}} = req
+   try {
+     if(!linkImg) return res.status(StatusCodes.BAD_REQUEST).json({msg: "No photo selected"})
+    await Links.findByIdAndUpdate({_id:linkId, createdBy:userId}, req.body, {new:true, runValidators:true})
+    res.status(StatusCodes.OK).json({msg: "photo uploaded successfully"})
+
+   } catch (error) {
+     res.status(StatusCodes.BAD_REQUEST).json({msg: "There was a problem try again"})
+   }
+}
+
 const deleteLink = async (req, res) =>{
     const {
         user: {userId},
@@ -36,4 +49,4 @@ const deleteLink = async (req, res) =>{
        res.status(StatusCodes.OK).json({link})
 }
 
-module.exports={ getAllLinks, createLink, updateLink, deleteLink}
+module.exports={ getAllLinks, createLink, updateLink, deleteLink, updateLinkThumbmail}

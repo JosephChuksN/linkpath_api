@@ -48,7 +48,7 @@ try {
    This link expires in <b>1</b> hour <br> Click <a href=${url}>here</a> to proceed</p>`
    await emailConfirmation(email, "Verify Email", mail)
    res.status(StatusCodes.CREATED).json(
-      { user: {name:user.name, email:user.email, bio:user.bio, profileImg:user.profileImg}, bio:user.bio, msg:` A verification link was sent to ${email}` })
+      { user: {name:user.name, email:user.email, bio:user.bio, profileImg:user.profileImg}, msg:` A verification link was sent to ${email}` })
  
 } catch (error) {
     
