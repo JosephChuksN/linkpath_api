@@ -125,49 +125,34 @@ const login = async (req, res)=>{
 
 const updateUser = async (req, res)=>{
 
-      const {name, email, bio, profileImg} = req.body
-      if(!name || !email){
-            res.status(StatusCodes.BAD_REQUEST).json({msg: "Please provide values username and email"})
+      const {displayName, bio, } = req.body
+      if(!displayName && !bio){
+            res.status(StatusCodes.BAD_REQUEST).json({msg: "Please provide values to carryout this operation"})
       }
 
-    //   const nameAlreadyExist = await User.find({name:name})
-
-    //   if(nameAlreadyExist){
-    //     res.status(StatusCodes.BAD_REQUEST).json({msg: "username already in use by you or another user"})
-    //   }
-
-    //   const  emailAlreadyExist = await User.find({email:email}) 
-    //   if(emailAlreadyExist){
-    //         res.status(StatusCodes.BAD_REQUEST).json({msg: "Email already in use by you or another user"})
-    //   }
      try {
-        const  user = await User.findOne({_id: req.user.userId})
-
-        if(!profileImg){       
-          user.name = name
-          user.email = email
+        const  user = await User.findOne({_id: req.user.userId})  
+          user.displayName = displayName
           user.bio = bio
-          
           await user.save()
           const token = await user.createJwt()
-           
-          res.status(StatusCodes.OK).json({user, token, bio: user.bio})
-        }else{ 
-          user.name = name
-          user.email = email
-          user.bio = bio
-          user.profileImg = profileImg
-         
-          await user.save()
-          const token = await user.createJwt()
-         
-          res.status(StatusCodes.OK).json({user, token, bio: user.bio})
-        }
+          res.status(StatusCodes.OK).json({user, token, bio: user.bio})    
      } catch (error) {
         res.status(StatusCodes.EXPECTATION_FAILED).json({msg:error})
      }
 
 
+}
+
+const updateProfilePhoto = async () =>{
+   const { profileImg } = req.body
+
+   try {
+       await User.updateOne({_id: req.user.userId}, {profileImg: profileImg})
+   return res.status(StatusCodes.OK).json({msg:"photo upload complete"})
+   } catch (error) {
+      res.status(StatusCodes.BAD_REQUEST)
+   }
 }
 
 const sendPaswordResetLink = async (req, res) => {
@@ -230,4 +215,47 @@ const resetPassword = async (req, res) => {
 
 }
 
-module.exports = {register, login, updateUser, verifyEmail, sendPaswordResetLink, resetPassword}
+
+const changePassword =  async (req, res) => {
+   const { currentPassword, newPassword} = req.body
+    
+  try {
+   const user = await User.findOne({_id: req.user.userId}).select('+password')
+  
+
+   const isMatchedPassword = await bcrypt.compare(currentPassword, user.password).then((status)=>{return status})
+   if(!isMatchedPassword){
+      return res.status(StatusCodes.BAD_REQUEST).json({msg: "inCorrect password entered"})
+   }
+
+   const newPassMatchOld = await bcrypt.compare(newPassword, user.password).then((status)=>{return status})
+   if(newPassMatchOld){
+     return  res.status(StatusCodes.BAD_REQUEST).json({msg: "new password must be different from old"})
+   }
+     const saltRounds = await bcrypt.genSalt(10)
+     const hashedPassword = await bcrypt.hash(newPassword, saltRounds)
+    user.password = hashedPassword
+    await user.save()
+     const mail = `<p>Password Change. <br>
+     This email is to notify you of a password change to your linkpath account<br>
+     </p>`
+     const email = user.email
+     await emailConfirmation(email, "Reset Password", mail)
+      return res.status(StatusCodes.OK).json({msg:"Password change successful"})
+  } catch (error) {
+     res.status(StatusCodes.BAD_REQUEST).json({msg:"something went wrong"})
+  }
+
+   
+   
+}
+
+module.exports = {
+   register, 
+   login, 
+   updateUser, 
+   verifyEmail, 
+   sendPaswordResetLink, 
+   resetPassword, 
+   changePassword, 
+   updateProfilePhoto}
