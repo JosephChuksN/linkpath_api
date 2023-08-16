@@ -144,12 +144,16 @@ const updateUser = async (req, res)=>{
 
 }
 
-const updateProfilePhoto = async () =>{
+const updateProfilePhoto = async (req, res) =>{
    const { profileImg } = req.body
 
    try {
-       await User.updateOne({_id: req.user.userId}, {profileImg: profileImg})
-   return res.status(StatusCodes.OK).json({msg:"photo upload complete"})
+      const user = await User.findOne({_id: req.user.userId})
+      //  await User.updateOne({_id: req.user.userId}, {profileImg: profileImg})
+      user.profileImg = profileImg
+      await user.save()
+      const token = await user.createJwt()
+   return res.status(StatusCodes.OK).json({user, msg:"photo upload complete"})
    } catch (error) {
       res.status(StatusCodes.BAD_REQUEST)
    }
