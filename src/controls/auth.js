@@ -153,7 +153,7 @@ const updateProfilePhoto = async (req, res) =>{
       user.profileImg = profileImg
       await user.save()
       const token = await user.createJwt()
-   return res.status(StatusCodes.OK).json({user, msg:"photo upload complete"})
+   return res.status(StatusCodes.OK).json({user, token, bio:user.bio, msg:"photo upload complete"})
    } catch (error) {
       res.status(StatusCodes.BAD_REQUEST)
    }
